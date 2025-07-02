@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+# File: app/api/v1/endpoints.py
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from typing import List
 from app.application.services import MovieService
-from app.api.v1.schemas import ReviewCreate, MovieResponse, MovieSearchRequest, LoginRequest, UsuarioResponse
+from app.api.v1.schemas import  ReviewCreate, ReviewResponse, ReviewRequest, MovieResponse, MovieRequest, LoginRequest, UsuarioResponse
 from app.adapters.http.omdb_client import OMDbMovieProvider
 from app.adapters.repository.postgres_repository import PostgresMovieRepository
 from infrastructure.db.db import get_db
@@ -16,13 +17,13 @@ def get_movie_service(db: Session = Depends(get_db)) -> MovieService:
     service = MovieService(repo, provider)
     return service
 
-@router.post("/create-movie", status_code=201)
+@router.post("/create-review", status_code=201)
 def create_review(review: ReviewCreate, service: MovieService = Depends(get_movie_service)):
     service.add_review(review.imdb_id, review.user_opinion, review.user_rating)
-    return {"message": "Review added"}
+    return {"message": "Review Incluido com sucesso !"}
 
 @router.post("/search-movie", response_model=List[MovieResponse])
-def search_movies(search: MovieSearchRequest,service: MovieService = Depends(get_movie_service)):
+def search_movies(search: MovieRequest,service: MovieService = Depends(get_movie_service)):
     if search.imdb_id:
         movie = service.get_consolidated_movie_by_imdb(search.imdb_id)
         movie.poster = service.provider.get_poster_by_imdb(search.imdb_id)
@@ -39,6 +40,31 @@ def search_movies(search: MovieSearchRequest,service: MovieService = Depends(get
     #movie_response = MovieResponse.from_domain(movie)
     # Return a list with a single movie response
     return [movie]
+"""
+@router.post("/search-review", response_model=List[ReviewResponse])
+def search_review(search: ReviewRequest,service: MovieService = Depends(get_movie_service)):
+    if search.imdb_id:
+        review = service.get_reviews(search.imdb_id)
+
+    if not review:
+        raise HTTPException(status_code=404, detail="Review não encontrado")
+    # Convert movie to response model
+    #movie_response = MovieResponse.from_domain(movie)
+    # Return a list with a single movie response
+    return [review]
+"""
+# NOVO ENDPOINT: Pesquisar reviews por IMDb ID
+@router.post("/search-review", response_model=List[ReviewResponse])
+def search_reviews_by_imdb_id_post(imdb_id: str = Body(..., embed=True), service: MovieService = Depends(get_movie_service)):
+    """
+    Search reviews by IMDb ID of a movie.
+    """
+    reviews_entity = service.get_reviews(imdb_id)
+    if not reviews_entity:
+        return []  # Returns an empty list if no review is found
+
+    # Convert each Review entity to the ReviewResponse schema
+    return [ReviewResponse.model_validate(r.__dict__) for r in reviews_entity]
 
 @router.post("/login", response_model=UsuarioResponse) # <--- Definir o response_model com o schema de usuário
 async def login(search: LoginRequest):

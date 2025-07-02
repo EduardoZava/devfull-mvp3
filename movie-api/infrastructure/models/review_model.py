@@ -6,5 +6,5 @@ class ReviewModel(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     imdb_id = Column(String(20), index=True, nullable=False)
-    user_opinion = Column(Text, nullable=False)
-    user_rating = Column(Integer, nullable=False)
+    user_opinion = Column(Text)
+    user_rating = Column(Integer)

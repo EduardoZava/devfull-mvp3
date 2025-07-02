@@ -18,7 +18,17 @@ class PostgresMovieRepository(MovieRepositoryPort):
         self.session.commit()
 
     def get_reviews_by_imdb_id(self, imdb_id: str) -> List[Review]:
-        db_reviews = self.session.query(ReviewModel).filter(ReviewModel.imdb_id == imdb_id).all()
-        return [Review(user_opinion=r.user_opinion, user_rating=r.user_rating) for r in db_reviews]
+        # Retrieves all reviews from the database and returns them as Review entities.
+
+        review_models = self.session.query(ReviewModel).filter(ReviewModel.imdb_id == imdb_id).all()
+        reviews = []
+        for review_model in review_models:
+            review = Review(
+                imdb_id=review_model.imdb_id,
+                user_opinion=review_model.user_opinion,
+                user_rating=review_model.user_rating
+            )
+            reviews.append(review)
+        return reviews
     
 

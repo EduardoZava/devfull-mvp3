@@ -8,9 +8,19 @@ class ReviewCreate(ScBaseModel):
     user_rating: int
 
 class ReviewResponse(ScBaseModel):
+    imdb_id: str
     user_opinion: str
     user_rating: int
 
+class ReviewRequest(ScBaseModel):
+    imdb_id: str = None
+
+    @model_validator(mode="after")
+    def validate_search(self):
+        if self.imdb_id:
+            return self
+        raise ValueError("Você deve informar imdb_id")
+    
 class MovieResponse(ScBaseModel):
     title: str
     year: int
@@ -23,7 +33,7 @@ class MovieResponse(ScBaseModel):
     poster: str = ""
     reviews: List[ReviewResponse]
 
-class MovieSearchRequest(ScBaseModel):
+class MovieRequest(ScBaseModel):
     imdb_id: Optional[str] = None
     title: Optional[str] = None
     year: Optional[int] = None
@@ -35,7 +45,14 @@ class MovieSearchRequest(ScBaseModel):
         if self.title and self.year:
             return self
         raise ValueError("Você deve informar imdb_id OU title e year juntos.")
+
+# class ReviewResponse(ScBaseModel):
+#     id: int
+#     imdb_id: str
+#     user_opnion: str
+#     user_rating: int
     
+
 class LoginRequest(ScBaseModel):
     user_name: str
     pwd: str

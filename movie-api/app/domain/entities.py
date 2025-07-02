@@ -3,13 +3,19 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Review:
+    imdb_id: str  # noqa: N806  # Ignore linter warning for 'imdb'
     user_opinion: str
     user_rating: int
 
     def __post_init__(self):
-        if not (1 <= self.user_rating <= 10):
-            raise ValueError("user_rating must be between 1 and 10")
+        if not self.imdb_id or not isinstance(self.imdb_id, str):
+            raise ValueError("imdb_id deve ser uma string não vazia")
+        if not self.user_opinion or not isinstance(self.user_opinion, str):
+            raise ValueError("user_opinion deve ser uma string não vazia")
+        if not isinstance(self.user_rating, int) or not (1 <= self.user_rating <= 10):
+            raise ValueError("user_rating deve ser um inteiro entre 1 e 10")
         
+    
 @dataclass
 class Usuario:
     nome: str
