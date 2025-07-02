@@ -1,12 +1,13 @@
 // File: client/src/pages/Movies/index.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FiPower, FiSearch } from 'react-icons/fi';
+import { FiPower } from 'react-icons/fi';
 // Importar os ícones de Material Design para as setas de navegação
-import { MdArrowBack, MdArrowForward } from 'react-icons/md'; 
+import { MdArrowBack, MdArrowForward } from 'react-icons/md'; // <--- NOVO: Ícones de seta
+
 
 import api from '../../services/api';
-import MovieCard from '../../componentes/MovieCard'; // Certifique-se que o caminho está correto
+import MovieCard from '../../componentes/MovieCard';
 
 import './styles.css';
 
@@ -17,7 +18,7 @@ export default function Movies() {
     const [allMovies, setAllMovies] = useState([]);
     // Estado para paginação
     const [currentPage, setCurrentPage] = useState(1);
-    const moviesPerPage = 1; // <--- AJUSTADO: Número de filmes por página (ex: 2 linhas de 3 filmes)
+    const moviesPerPage = 3; // Número de filmes por página (para uma grade 3x3, por exemplo)
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -27,7 +28,7 @@ export default function Movies() {
 
     const navigate = useNavigate();
 
-    // IDs de 20 filmes para carregar 
+    // IDs de 20 filmes para carregar
     const imdbIdsToLoad = [
         "tt1375666", "tt0816692", "tt0111161", "tt0468569", "tt0109830",
         "tt0133093", "tt0110357", "tt0167260", "tt0102926", "tt0068646",
@@ -47,31 +48,17 @@ export default function Movies() {
         const fetchedMovies = [];
 
         try {
-            // Usando Promise.allSettled para carregar filmes em paralelo e capturar falhas individuais
-            const fetchPromises = imdbIdsToLoad.map(async (imdb_id) => {
+            for (const imdb_id of imdbIdsToLoad) {
                 const data = { imdb_id: imdb_id };
                 try {
                     const response = await api.post(`/api/v1/search-movie`, data);
                     if (response.data && response.data.length > 0) {
-                        // Verifica se o filme já foi carregado
-                        const movieData = { ...response.data[0] }; // Copia os dados do filme
-  
-                        return movieData;
+                        fetchedMovies.push(response.data[0]);
                     }
-                    return null;
                 } catch (innerError) {
                     console.warn(`Filme com IMDb ID ${imdb_id} não encontrado ou erro ao buscar:`, innerError);
-                    return null;
                 }
-            });
-
-            const results = await Promise.allSettled(fetchPromises);
-            results.forEach(result => {
-                if (result.status === 'fulfilled' && result.value) {
-                    fetchedMovies.push(result.value);
-                }
-            });
-
+            }
             setAllMovies(fetchedMovies); // Define TODOS os filmes carregados
             console.log("Todos os filmes carregados:", fetchedMovies);
 
@@ -111,7 +98,7 @@ export default function Movies() {
 
     async function editMovie(imdbId) {
         try {
-            navigate(`/review`);
+            navigate(`/movie/new/${imdbId}`);
         } catch (err) {
             alert('Falha na edição do filme! Tente novamente!');
         }
@@ -119,16 +106,18 @@ export default function Movies() {
 
     async function deleteMovie(imdbId) {
         try {
-            setAllMovies(prevMovies => {
-                const updatedMovies = prevMovies.filter(movie => movie.imdb_id !== imdbId);
-                const newTotalPages = Math.ceil(updatedMovies.length / moviesPerPage);
-                if (currentPage > newTotalPages && newTotalPages > 0) {
-                    setCurrentPage(newTotalPages);
-                } else if (newTotalPages === 0) {
-                    setCurrentPage(1);
-                }
-                return updatedMovies;
-            });
+            // Lógica real para chamar a API de exclusão (descomente quando implementar)
+            // await api.delete(`/api/movie/v1/${imdbId}`, {
+            //     headers: { Authorization: `Bearer ${auth_token}` }
+            // }); 
+            
+            // Após a exclusão, atualize a lista de filmes removendo o filme excluído
+            // Isso funciona filtrando de 'allMovies' e resetando a página se necessário
+            setAllMovies(prevMovies => prevMovies.filter(movie => movie.imdb_id !== imdbId));
+            // Ajuste a página atual se a última página ficar vazia
+            if (currentPage > 1 && displayedMovies.length === 1 && allMovies.length - 1 === indexOfFirstMovie) {
+                setCurrentPage(prevPage => prevPage - 1);
+            }
             alert(`Filme com IMDb ID ${imdbId} excluído.`);
         } catch (err) {
             alert('Falha na exclusão! Tente novamente!');
@@ -143,26 +132,16 @@ export default function Movies() {
             alert('Falha no Logout! Tente novamente!');
         }
     }
-
     
     return (
         <div className="movie-container bg-gray-50 min-h-screen p-4">
-            {/* Header: Centralizado, com padding vertical aumentado e max-w-3xl para alinhamento com 2 cards */}
-            <header className="flex items-center justify-between px-6 py-8 bg-white shadow rounded-lg mb-10 mx-auto max-w-3xl"> 
+            <header className="flex items-center justify-between p-4 bg-white shadow rounded-lg mb-6">
                 <img src={logoImage} alt="OMDB Logo" className="h-10"/>
-                {/* O span agora tem um mr-[100px] para criar a distância desejada */}
-                <span className="text-lg text-gray-700 mr-[200px]">Bem vindo, <strong>{user_name ? user_name.toUpperCase() : 'Convidado'}</strong>!</span> {/* <--- MUDANÇA AQUI */}
+                <span className="text-lg text-gray-700">Bem vindo, <strong>{user_name ? user_name.toUpperCase() : 'Convidado'}</strong>!</span>
                 <div className="flex items-center space-x-4">
-                    {/* Botão Adicionar Novo Filme com Efeito 3D */}
-                    <Link className="button" to="/movies"> +Filmes</Link>
-                    {/* Botão de Logout com Efeito 3D */}
-                    <button 
-                        onClick={logout} 
-                        type="button" 
-                        className="relative p-2 rounded-full hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500
-                                   shadow-md hover:shadow-lg hover:-translate-y-0.5 active:shadow-inner active:translate-y-0.5" 
-                    >
-                        <FiPower size={24} color="#251FC5" />
+                    <Link className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200" to="/book/new/0">Adicionar Novo Filme</Link>
+                    <button onClick={logout} type="button" className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <FiPower size={18} color="#251FC5" />
                     </button>
                 </div>
             </header>
@@ -172,8 +151,8 @@ export default function Movies() {
             {loading && <p className="text-center text-blue-500">Carregando filmes...</p>}
             {error && <p className="text-center text-red-600">{error}</p>}
             
+            {/* Renderiza a lista de filmes usando MovieCard */}
             {displayedMovies.length > 0 ? (
-                // Renderiza a lista de filmes usando MovieCard em uma grade
                 <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
                     {displayedMovies.map(movie => (
                         <MovieCard 
@@ -189,31 +168,27 @@ export default function Movies() {
             )}
 
             {/* Controles de Paginação */}
-            {totalPages > 1 && ( 
-                <div className="flex justify-center items-center mt-6 space-x-4">
-                    <button
-                        className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                        onClick={handlePreviousPage}
-                        disabled={currentPage === 1 || loading}
-                        aria-label="Página Anterior"
-                    >
-                        <MdArrowBack size={20} className="mr-1" />
-                        <span className="hidden sm:inline">Anterior</span>
-                    </button>
-                    <span className="text-lg font-semibold text-gray-700">Página {currentPage} de {totalPages}</span>
-                    <button
-                        className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages || loading}
-                        aria-label="Próxima Página"
-                    >
-                        <span className="hidden sm:inline">Próxima</span>
-                        <MdArrowForward size={20} className="ml-1" />
-                    </button>
-                </div>
-            )}
+            <div className="flex justify-center items-center mt-6 space-x-4">
+                <button
+                    className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1 || loading}
+                >
+                    <MdArrowBack size={20} className="mr-1" /> {/* MUDANÇA AQUI: MdArrowBack */}
+                    <span className="hidden sm:inline">Anterior</span>
+                </button>
+                <span className="text-lg font-semibold text-gray-700">Página {currentPage} de {totalPages}</span>
+                <button
+                    className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages || loading}
+                >
+                    <span className="hidden sm:inline">Próxima</span>
+                    <MdArrowForward size={20} className="ml-1" /> {/* MUDANÇA AQUI: MdArrowForward */}
+                </button>
+            </div>
 
-            {/* O botão "Recarregar Todos os Filmes" */}
+            {/* O botão "Carregar Filmes (3x)" agora é um "Recarregar Todos os Filmes" */}
             <div className="text-center mt-6">
                 <button 
                     className="px-6 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" 
