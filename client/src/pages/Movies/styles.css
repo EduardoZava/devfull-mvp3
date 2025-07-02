@@ -1,6 +1,6 @@
 .movie-container {
     width: 100%;
-    max-width: 1180px;
+    max-width: 1000px;
     padding: 0 30px;
     margin: 32px auto;
 }
@@ -32,7 +32,7 @@
 }
 
 .movie-container header span{
-    width: 860px;
+    width: 400px;
     margin-left: 10px;
     margin-top: 0;
 }

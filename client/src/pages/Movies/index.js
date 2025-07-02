@@ -11,6 +11,7 @@ import MovieCard from '../../componentes/MovieCard'; // Certifique-se que o cami
 import './styles.css';
 
 import logoImage from '../../assets/logo-omdb.png';
+import SearchBar from '../../componentes/SearchBar';
 
 export default function Movies() {
     // Estado para armazenar TODOS os filmes carregados
@@ -152,6 +153,11 @@ export default function Movies() {
                 <img src={logoImage} alt="OMDB Logo" className="h-10"/>
                 {/* O span agora tem um mr-[100px] para criar a distância desejada */}
                 <span className="text-lg text-gray-700 mr-[200px]">Bem vindo, <strong>{user_name ? user_name.toUpperCase() : 'Convidado'}</strong>!</span> {/* <--- MUDANÇA AQUI */}
+                <div className="flex items-center space-x-2">
+                    {/* Barra de Busca com Efeito 3D */}
+                    <SearchBar
+                    />
+                </div>
                 <div className="flex items-center space-x-4">
                     {/* Botão Adicionar Novo Filme com Efeito 3D */}
                     <Link className="button" to="/movies"> +Filmes</Link>
