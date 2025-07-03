@@ -1,8 +1,8 @@
 .movie-container {
     width: 100%;
-    max-width: 1000px;
+    max-width: 900px;
     padding: 0 30px;
-    margin: 32px auto;
+    margin: 24px auto;
 }
 
 .movie-container header{
@@ -12,7 +12,7 @@
 
 .movie-container header span{
     font-size: 20px;
-    margin-left: 24px;
+    margin-left: 12px;
 }
 
 .movie-container header span strong{
@@ -20,7 +20,7 @@
 }
 
 .movie-container header img{
-    height: 64px;
+    height: 100px;
 }
 
 .movie-container header a{
@@ -32,8 +32,9 @@
 }
 
 .movie-container header span{
-    width: 400px;
+    width: 250px;
     margin-left: 10px;
+    margin-right: 10px;
     margin-top: 0;
 }
 .movie-container header button{
@@ -58,7 +59,7 @@
 .movie-container ul {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    grid-gap: 24px;
+    grid-gap: 2px;
     list-style: none;
 }
 
@@ -101,4 +102,14 @@
     color: #737380;
     line-height: 21px;
     font-size: 16px;
+}
+.recarregar-filmestext-center {
+    text-align: center;
+    margin-top: 5px;
+}
+
+.contro-paginacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

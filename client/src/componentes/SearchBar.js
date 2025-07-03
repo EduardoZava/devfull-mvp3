@@ -1,18 +1,17 @@
-// File: client/src/components/SearchBar.js
-
-import React, { useState } from 'react';
-import { FiSearch} from 'react-icons/fi';
-
 /**
  * Componente de Barra de Busca.
- * Permite ao usuário digitar um termo e acionar uma busca.
+ * Permite ao usuário digitar um termo e acionar uma busca, com um ícone de busca.
  *
  * @param {object} props - As propriedades do componente.
  * @param {function(string): void} props.onSearch - Função de callback a ser chamada com o termo de busca.
  * @param {string} [props.placeholder="Buscar..."] - Texto de placeholder para o input.
  * @param {string} [props.buttonText="Buscar"] - Texto do botão de busca.
  */
-function SearchBar({ onSearch, placeholder = "Buscar...", buttonText = "Buscar" }) {
+import React, { useState } from 'react';
+import { FiSearch } from 'react-icons/fi';
+import './searchbar.css'; // Certifique-se de ter um arquivo CSS para estilos adicionais, se necessário
+
+function SearchBar({ onSearch, placeholder = "Buscar..." }) {
     // Estado para armazenar o valor atual do input de busca
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -37,26 +36,26 @@ function SearchBar({ onSearch, placeholder = "Buscar...", buttonText = "Buscar" 
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex items-center space-x-2 p-4 bg-white rounded-lg shadow-md">
-            {/* Search input */}
-            <input
-                type="text"
-                className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                placeholder={placeholder}
-                value={searchTerm}
-                onChange={handleChange}
-                aria-label={placeholder}
-            />
-            {/* Search button with Material Design icon */}
+        <form onSubmit={handleSubmit} className="form-flex-items">
+            {/* Contêiner para o ícone e input, usando flex para alinhamento */}
+            <div className="relative flex-grow flex items-center">
+               {/* Input de busca */}
+                <input
+                    type="text"
+                    className="flex-grow pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                    placeholder={placeholder}
+                    value={searchTerm}
+                    onChange={handleChange}
+                    aria-label={placeholder}
+                />
+            </div>
+            {/* Botão de busca */}
             <button
                 type="submit"
-                className="flex items-center justify-center p-2 bg-blue-500 rounded-md hover:bg-blue-600 transition-colors ml-2"
-                aria-label="Search"
+                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!searchTerm.trim()} // Desabilita o botão se o termo de busca estiver vazio
             >
-                {/* Material Design Search Icon (SVG) */}
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
-                </svg>
+                <FiSearch size={24} color="#251FC5" />
             </button>
         </form>
     );

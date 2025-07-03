@@ -26,9 +26,9 @@ form input {
     height: 60px;
     color: #333333;
     border: 1px solid #DCDCE6;
-    border-radius: 4px;
-    padding: 0 12px;
-    margin-top: 8px;
+    border-radius: 8px;
+    padding: 0 24px;
+    margin-top: 16px;
 }
 
 .button {

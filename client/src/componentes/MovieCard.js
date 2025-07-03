@@ -4,6 +4,8 @@ import { MdStarBorder } from 'react-icons/md';
 import { FiTrash } from 'react-icons/fi';
 import MovieReviews from './MovieReviews'; // Importar o componente de Reviews
 
+import './moviecard.css';
+
 // Este componente exibe os detalhes de um único filme
 function MovieCard({ movie, editMovie, deleteMovie }) {
     // É crucial verificar se 'movie' existe antes de tentar exibir seus detalhes
@@ -13,7 +15,7 @@ function MovieCard({ movie, editMovie, deleteMovie }) {
 
     
     const containerStyle = {
-            height: '150px', // Fixed height for the scrollable area
+            height: '120px', // Fixed height for the scrollable area
             overflowY: 'scroll', // Enable vertical scrolling
             border: '2px solid #ccc', // Optional: add a border for visual clarity
             padding: '10px',
@@ -21,10 +23,14 @@ function MovieCard({ movie, editMovie, deleteMovie }) {
 
     return (
         <li
-            className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between border border-gray-200"
-            // Removida a altura fixa em 'px' para o <li> para que ele se ajuste ao conteúdo dentro de uma grade.
-            // A altura será gerenciada pela grade pai, mas a sinopse terá sua própria rolagem interna.
+            className="li-container" 
+           
         >
+            <div className='text-center mb-4'> {/* Centraliza o título do catálogo */}
+                <center>
+                <h1 className="text-3xl font-bold text-gray-800 mb-6 w-full">Catálogo de Filmes</h1>
+                </center>
+            </div>
             {/* IMAGEM DO PÔSTER */}
             <div className="flex-shrink-0 mb-4 mx-auto w-full max-w-[200px] h-auto"> {/* Contêiner para a imagem, centralizado */}
                 <img 
@@ -36,7 +42,8 @@ function MovieCard({ movie, editMovie, deleteMovie }) {
             </div>
 
             {/* Detalhes do Filme - flex-grow para ocupar o espaço restante, flex-col para layout em coluna, min-h-0 para permitir rolagem em filhos */}
-            <div className="flex-grow flex flex-col min-h-0"> 
+            <div className="flex-grow"> 
+                <strong className="text-gray-700">Título Filme:</strong>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">{movie.title} ({movie.year})</h3>
                 
                 <div className="mb-2">
