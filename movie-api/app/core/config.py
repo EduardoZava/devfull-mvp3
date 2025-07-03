@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     @property
     def DB_URL(self) -> str:
-        return f"postgresql+psycopg2://postgres:{self.DB_PASSWORD}@{self.IP_LOCAL}:5432/moviedb"
+        return "sqlite:///./movie_api.db"
 
     class Config:
         case_sensitive = True

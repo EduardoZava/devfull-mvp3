@@ -27,9 +27,10 @@ ip_local = "127.0.0.1" # Placeholder for local IP, replace with actual IP if nee
 # Define the database URL using environment variables or default values
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    f"postgresql+psycopg2://postgres:{db_password}@{ip_local}:5432/moviedb"
+    "sqlite:///./moviedb.sqlite3"
 )
-#db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/moviedb")
+db_url = DATABASE_URL
+
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 

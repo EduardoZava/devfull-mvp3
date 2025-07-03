@@ -1,3 +1,3 @@
-from models.review_model import ReviewModel
-from models.movie_model import MovieModel
-from models.usuario_model import UsuarioModel
+from .review_model import ReviewModel
+from .movie_model import MovieModel
+from .usuario_model import UsuarioModel

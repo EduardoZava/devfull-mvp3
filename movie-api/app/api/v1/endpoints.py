@@ -4,14 +4,14 @@ from typing import List
 from app.application.services import MovieService
 from app.api.v1.schemas import  ReviewCreate, ReviewResponse, ReviewRequest, MovieResponse, MovieRequest, LoginRequest, UsuarioResponse
 from app.adapters.http.omdb_client import OMDbMovieProvider
-from app.adapters.repository.postgres_repository import PostgresMovieRepository
+from app.adapters.repository.repository import SqlliteMovieRepository
 from infrastructure.db.db import get_db
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 def get_movie_service(db: Session = Depends(get_db)) -> MovieService:
-    repo = PostgresMovieRepository(db)
+    repo = SqlliteMovieRepository(db)
     # OMDb API key should come from environment/config in real app
     provider = OMDbMovieProvider(api_key="38e11782")
     service = MovieService(repo, provider)
@@ -40,19 +40,7 @@ def search_movies(search: MovieRequest,service: MovieService = Depends(get_movie
     #movie_response = MovieResponse.from_domain(movie)
     # Return a list with a single movie response
     return [movie]
-"""
-@router.post("/search-review", response_model=List[ReviewResponse])
-def search_review(search: ReviewRequest,service: MovieService = Depends(get_movie_service)):
-    if search.imdb_id:
-        review = service.get_reviews(search.imdb_id)
 
-    if not review:
-        raise HTTPException(status_code=404, detail="Review não encontrado")
-    # Convert movie to response model
-    #movie_response = MovieResponse.from_domain(movie)
-    # Return a list with a single movie response
-    return [review]
-"""
 # NOVO ENDPOINT: Pesquisar reviews por IMDb ID
 @router.post("/search-review", response_model=List[ReviewResponse])
 def search_reviews_by_imdb_id_post(imdb_id: str = Body(..., embed=True), service: MovieService = Depends(get_movie_service)):
