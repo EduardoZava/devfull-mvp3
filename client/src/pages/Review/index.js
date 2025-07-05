@@ -1,5 +1,5 @@
-import React, {useState, useEffect, use} from 'react';
-import {useNavigate, useParams, Link } from 'react-router-dom';
+import React, {useState} from 'react';
+import {Link, useNavigate } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi'
 
 import api from '../../services/api'
@@ -8,85 +8,103 @@ import './styles.css';
 
 import logoImage from '../../assets/logo-omdb.png';
 
-export default function NewReview(){
+export default function NewReview() {
 
-    const { reviewId } = useParams();
-
-    
     const [imdbId, setImdbId] = useState('');
-    const [user_opinion, setUserOpnion] = useState('');
-    const [user_rating, setUserRating] = useState('');
-  
+    const [userOpinion, setUserOpinion] = useState('');
+    const [userRating, setUserRating] = useState('');
+    const [idExiste, setIdExiste] = useState('');
+
     const navigate = useNavigate();
     
-    const auth_token = localStorage.getItem('auth_token');
-    const user_name = localStorage.getItem('user_name');
-
-    useEffect(() => {
-        if (reviewId === '0') return;
-        else loadReviews();
-    }, [reviewId]);
-
-    async function loadReviews(e) {
-        if (e) e.preventDefault();
-        const imdbId = "tt0133093"; // Example IMDb ID for "The Matrix"
-        try {
-
-            const data = {
-                "imdb_id": e.data.imdb_id || imdbId,
-            };
-            console.log( data)
-
-            const response = await api.post(`/api/v1/search-review`,data) ;
-
-            if (!response.data || response.data.length === 0) {
-                alert('Não foram encontrados comentários para este filme!');
-                return;
-            }
-            
-            setImdbId(response.data.imdb_id);
-            setUserOpnion(response.data.user_opinion);
-            setUserRating(response.data.user_rating);
-            console.log('comentários:', response.data);
-            
-
-        } catch (err) {
-            alert('Erro recuperando comentários! Tente novamente!');
-            
-        }
-        navigate('/review');
-    }
-
-    async function saveOrUpdate(e){
+    async function saveOrUpdate(e) {
         e.preventDefault();
 
+        // Validação básica
+        if (!imdbId || !userOpinion || !userRating) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+        if (Number(userRating) < 1 || Number(userRating) > 10) {
+            alert('A nota do usuário deve ser entre 1 e 10.');
+            return;
+        }
+
         const data = {
-        
-            imdb_id: e.imdb_id,
-            user_opinion: e.user_opinion,
-            user_rating: e.user_rating
-        
+            imdb_id: imdbId,
+            user_opinion: userOpinion,
+            user_rating: Number(userRating) // Garante que a nota seja um número
         };
 
         try {
-            if (imdbId !== '0') {
-                await api.post('/api/v1/create-review', data);
-            } else {
-                await api.post('/api/v1/search-review', data);
+            // ALTERAÇÃO CRUCIAL: Usando api.post e a URL '/api/v1/search-reviews' conforme sua instrução.
+            // IMPORTANTE: Este endpoint é para BUSCAR reviews e retorna uma LISTA.
+            // Se a intenção é SALVAR/ATUALIZAR uma review, o endpoint e o método geralmente seriam diferentes (ex: POST /api/v1/reviews/ ou PUT /api/v1/reviews/{id}).
+            const response = await api.post(`/api/v1/search-review`, data); 
+
+            const fetchedReviews = response.data; // A resposta é uma LISTA de reviews
+
+            console.log('Reviews recebidas da busca:', fetchedReviews);
+
+            if (!fetchedReviews || fetchedReviews.length === 0) {
+
+                // Se o imdbId NÃO está na lista salva no localStorage, prossiga normalmente
+                const imdbIdsToLoad = JSON.parse(localStorage.getItem("imdbIdsToLoad") || "[]");
+                if (!imdbIdsToLoad.includes(imdbId)) {
+                    // imdbId não está na lista, prossiga seguir para inclusao
+                    const response = await api.post(`/api/v1/create-review`, data); 
+                    if (response.data || fetchedReviews.length > 0){
+                        alert("Inclusao realizada com sucesso!" )
+                        setIdExiste('s')
+                        imdbIdsToLoad.add(imdbId);
+                    }
+                    else
+                    {
+                        //Opcional: Limpar os campos se nenhuma review for encontrada
+                        setImdbId('');
+                        setUserOpinion('');
+                        setUserRating('');
+                        setIdExiste('')
+                        return;
+                    }
+
+                }
+                
+
+
             }
-        } catch (error) {
-            alert('Falha ao salvar ou atualizar o review! Tente novamente!');
+            
+            // ASSUNÇÃO: Se reviews foram encontradas, você quer usar a primeira para preencher os campos.
+            // Isso é uma interpretação da sua instrução, pois a função é 'saveOrUpdate'
+            // mas o endpoint é 'search-review' que retorna uma lista.
+            const firstReview = fetchedReviews[0];
+
+            //alert('Busca de review realizada com sucesso! Exibindo a primeira review encontrada.');
+
+            // Atualiza os estados com os dados da PRIMEIRA review retornada
+            setImdbId(firstReview.imdb_id);
+            setUserOpinion(firstReview.user_opinion);
+            setUserRating(firstReview.user_rating);
+
+            navigate('/review',data); // Navega de volta para a lista de reviews
+
+        } catch (err) {
+            console.error('Erro ao processar a requisição:', err);
+            // Mensagem de erro mais específica, se disponível na resposta da API
+            const errorMessage = err.response && err.response.data && err.response.data.detail
+                               ? err.response.data.detail
+                               : 'Erro ao realizar a operação! Tente novamente.';
+            alert(errorMessage);
         }
-        navigate('/review');
-    };
+    }
 
     return (
         <div className="new-review-container">
             <div className="content">
                 <section className="form">
                     <img src={logoImage} alt="OMDB"/>
-                    <h1>{reviewId === '0' ? 'Novo' : 'Atualizar'} Opnião</h1>
-                    <p>Entre com o Review e click on {reviewId === '0' ? `'Novo'` : `'Atualizar'`}!</p>
+                    <h1>{idExiste === '' ? 'Novo' : 'Atualizar'} Opnião</h1>
+                    <p>Entre com o Review e click on {idExiste === '' ? `'Novo'` : `'Atualizar'`}!</p>
                     <Link className="back-link" to="/movies">
                         <FiArrowLeft size={16} color="#251fc5"/>
                         Home
@@ -100,17 +118,15 @@ export default function NewReview(){
                     />
                     <input
                         placeholder="Opnião do Usuário"
-                        value={user_opinion}
-                        onChange={e => setUserOpnion(e.target.value)}
+                        value={userOpinion}
+                        onChange={e => setUserOpinion(e.target.value)}
                     />
                     <input
                         placeholder="Nota do Usuário"
-                        value={user_rating}
+                        value={userRating}
                         onChange={e => setUserRating(e.target.value)}
                     />
-
-
-                    <button className="button" type="submit">{reviewId === '0' ? 'Novo' : 'Atualizar'}</button>
+                    <button className="button" type="submit">{idExiste === '' ? 'Novo' : 'Atualizar'}</button>
                 </form>
             </div>
         </div>

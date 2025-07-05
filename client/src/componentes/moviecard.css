@@ -8,3 +8,26 @@
     border-radius: 0.75rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
+
+/* Estilos para o layout de grade dos detalhes do filme */
+.movie-details-grid {
+    display: grid;
+    /* Por padrão, uma coluna em telas pequenas */
+    grid-template-columns: 1fr; 
+    gap: 1rem; /* gap-y-4 e gap-x-4 */
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+/* Em telas maiores que 'sm' (640px por padrão no Tailwind), duas colunas */
+@media (min-width: 640px) {
+    .movie-details-grid {
+        grid-template-columns: 1fr 1fr; /* sm:grid-cols-2 */
+        column-gap: 1rem; /* gap-x-4 */
+        row-gap: 0.5rem; /* gap-y-2 */
+    }
+}
+
+/* Estilos para cada item dentro da grade */
+.movie-detail-item {
+    margin-bottom: 0; /* mb-0 */
+}

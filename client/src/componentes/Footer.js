@@ -15,9 +15,13 @@ import './footer.css'; // Import your styles for the footer
 function Footer({
     loading = false,
     loadMultipleMovies = () => {},
+    totalPages,
+    currentPage,
+    handlePreviousPage,
+    handleNextPage,
 }) {
     return (
-        <footer>
+        <footer style={{ background: '#000' }}>
             {/* Reload All Movies Button */}
             <div className="reload-movies text-center">
                 <button

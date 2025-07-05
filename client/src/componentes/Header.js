@@ -1,11 +1,12 @@
 import { FiPower } from 'react-icons/fi';
-import { Link } from 'react-router-dom'; // Make sure you have react-router-dom installed
 import logoImage from '../assets/logo-omdb.png'; // Adjust the path as needed
 import SearchBar from './SearchBar'; // Adjust the path as needed
+import { useNavigate} from 'react-router-dom';
 
 import './header.css'; // Import your styles for the header
 
-function Header({ user_name = '', logout = () => {} }) {
+function Header({ user_name = '', logout: logoutProp = () => {} }) {
+    
     /**
      * Header component for the application.
      * Displays a logo, welcome message, search bar, and logout button.
@@ -20,6 +21,15 @@ function Header({ user_name = '', logout = () => {} }) {
     if (!user_name) {
         user_name = 'Guest';
     }
+    const navigate =  useNavigate();
+    async function handleLogout() {
+        try {
+                localStorage.clear();
+                navigate('/');
+            } catch (err) {
+                alert('Falha no Logout! Tente novamente!');
+            }
+    }
 
     return (
         <header className="h-flex-items-center"> 
@@ -27,21 +37,21 @@ function Header({ user_name = '', logout = () => {} }) {
                 {/* Logo */}
                 <img src={logoImage} alt="App Logo" className="h-10 mr-4"/>
                 {/* Welcome */}
-                <span className="text-lg text-gray-700 mr-4 whitespace-nowrap">
-                    Welcome, <strong>{user_name ? user_name : 'Guest'}</strong>!
+                <span className="text-lg mr-4 whitespace-nowrap" style={{ color: 'white' }}>
+                    Welcome, <strong style={{ color: 'white' }}>{user_name ? user_name : 'Guest'}</strong>!
                 </span>
                 <div className="relative w-full max-w-md">
                     <SearchBar />
                 </div>
-                {/* Add New Movie Button */}
+                {/* Add New Movie Button */}}
                 
                 {/* Logout Button */}
                 <button 
-                    onClick={logout} 
+                    onClick={handleLogout} 
                     type="button" 
-                    className="relative-button-filmes" 
+                    className="relative-button-movies" 
                 >
-                    <FiPower size={24} color="#251FC5" />
+                    <FiPower size={24} color="#E0E0E0" />
                 </button>
             </div>
         </header>

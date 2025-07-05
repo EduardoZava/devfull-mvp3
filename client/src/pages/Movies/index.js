@@ -1,19 +1,17 @@
 // File: client/src/pages/Movies/index.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FiPower, FiSearch } from 'react-icons/fi';
+import { useNavigate} from 'react-router-dom';
 // Importar os ícones de Material Design para as setas de navegação
 import { MdArrowBack, MdArrowForward } from 'react-icons/md'; 
 import Header from '../../componentes/Header'; // Certifique-se que o caminho está correto
-
 import api from '../../services/api';
 import MovieCard from '../../componentes/MovieCard'; // Certifique-se que o caminho está correto
-
+import Footer from '../../componentes/Footer';
 import './styles.css';
 
-import logoImage from '../../assets/logo-omdb.png';
-import SearchBar from '../../componentes/SearchBar';
-import Footer from '../../componentes/Footer';
+
+//import SearchBar from '../../componentes/SearchBar';
+
 
 export default function Movies() {
     // Estado para armazenar TODOS os filmes carregados
@@ -25,7 +23,6 @@ export default function Movies() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const auth_token = localStorage.getItem('auth_token');
     const user_name = localStorage.getItem('user_name');
 
     const navigate = useNavigate();
@@ -37,7 +34,7 @@ export default function Movies() {
         "tt0076759", "tt0120737", "tt0120815", "tt0372784", "tt0099685",
         "tt0071562", "tt0050083", "tt0118799", "tt0095327", "tt0110912"
     ];
-
+         
     // Função para carregar múltiplos filmes
     async function loadMultipleMovies(e) {
         if (e) e.preventDefault();
@@ -113,8 +110,17 @@ export default function Movies() {
     }, []);
 
     async function editMovie(imdbId) {
+        console.log('Editando filme com IMDb ID:', imdbId);
+        const data = { imdbId: imdbId }
+
+        // try {
+        //     const response = await api.put("/api/v1/search-review", data);
+        //     console.log(response.data);
+        // } catch (error) {
+        //     console.error('Error fetching reviews:', error);
+        // }
         try {
-            navigate(`/review`);
+            navigate(`/review`,data);
         } catch (err) {
             alert('Falha na edição do filme! Tente novamente!');
         }
@@ -140,6 +146,7 @@ export default function Movies() {
 
     async function logout() {
         try {
+            console.log("logout");
             localStorage.clear();
             navigate('/');
         } catch (err) {
@@ -149,12 +156,11 @@ export default function Movies() {
 
     
     return (
-        <div className="movie-container bg-gray-50 min-h-screen p-4 flex flex-col items-center">
+        <div className="movie-container min-h-screen p-4 flex flex-col items-center" style={{ backgroundColor: 'black', color: 'white' }}>
 
             <Header 
                 userName={user_name} 
                 onLogout={logout} 
-                logoImage={logoImage}
             />
             
             
@@ -178,7 +184,7 @@ export default function Movies() {
             )}
             {/* Controles de Paginação */}
             {totalPages > 1 && ( 
-                <div className="controle-paginacao">
+                <div className="controle-paginacao" style={{ color: 'white' }}>
                     <center>
                     <button
                         className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
@@ -189,7 +195,7 @@ export default function Movies() {
                         <MdArrowBack size={20} className="mr-1" />
                         <span className="hidden sm:inline">Anterior</span>
                     </button>
-                    <span className="text-lg font-semibold text-gray-700">Página {currentPage} de {totalPages}</span>
+                    <span className="text-lg font-semibold text-gray-200">Página {currentPage} de {totalPages}</span>
                     <button
                         className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         onClick={handleNextPage}
