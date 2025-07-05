@@ -59,3 +59,11 @@
 .new-review-container .content form input {
     margin-top: 8px;
 }
+
+.new-review-error {
+    width: 100%;
+    max-width: 450px;
+    margin-top: 8px;
+    color: #E02041;
+    font-size: 14px;
+}

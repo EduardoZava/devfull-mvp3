@@ -14,21 +14,28 @@ export default function NewReview() {
     const [userOpinion, setUserOpinion] = useState('');
     const [userRating, setUserRating] = useState('');
     const [idExiste, setIdExiste] = useState('');
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
-    
+
     async function saveOrUpdate(e) {
         e.preventDefault();
 
+        setError("");
+
         // Validação básica
+
         if (!imdbId || !userOpinion || !userRating) {
-            alert('Por favor, preencha todos os campos.');
+            setError("Por favor, preencha todos os campos.");
             return;
         }
+
         if (Number(userRating) < 1 || Number(userRating) > 10) {
-            alert('A nota do usuário deve ser entre 1 e 10.');
+            
+            setError("A nota do usuário deve ser entre 1 e 10.");
             return;
         }
+        
 
         const data = {
             imdb_id: imdbId,
@@ -127,6 +134,7 @@ export default function NewReview() {
                         onChange={e => setUserRating(e.target.value)}
                     />
                     <button className="button" type="submit">{idExiste === '' ? 'Novo' : 'Atualizar'}</button>
+                    {error && <p className="new-review-error">{error}</p>}
                 </form>
             </div>
         </div>
