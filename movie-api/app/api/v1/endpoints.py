@@ -54,6 +54,19 @@ def search_reviews_by_imdb_id_post(imdb_id: str = Body(..., embed=True), service
     # Convert each Review entity to the ReviewResponse schema
     return [ReviewResponse.model_validate(r.__dict__) for r in reviews_entity]
 
+# NOVO ENDPOINT: Pesquisar reviews por IMDb ID
+@router.put("/update-review", response_model=List[ReviewResponse])
+def update_reviews_by_imdb_id_post(imdb_id: str = Body(..., embed=True), service: MovieService = Depends(get_movie_service)):
+    """
+    Search reviews by IMDb ID of a movie.
+    """
+    reviews_entity = service.get_reviews(imdb_id)
+    if not reviews_entity:
+        return []  # Returns an empty list if no review is found
+    
+    # Convert each Review entity to the ReviewResponse schema
+    return [ReviewResponse.model_validate(r.__dict__) for r in reviews_entity]
+
 @router.post("/login", response_model=UsuarioResponse) # <--- Definir o response_model com o schema de usuário
 async def login(search: LoginRequest):
     # 1. Validação básica para o mock:
