@@ -32,7 +32,7 @@ export default function NewReview() {
 
         if (Number(userRating) < 1 || Number(userRating) > 10) {
             
-            setError("A nota do usuário deve ser entre 1 e 10.");
+            setError("A nota deve ser entre 1 e 10.");
             return;
         }
         
